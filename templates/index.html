@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centralized Portal - SYSAD System</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- ======================================================== -->
+  <!-- TOP APP HEADER                                           -->
+  <!-- ======================================================== -->
+  <header>
+    <div class="brand">
+      <div>
+        <div class="brand-title">Centralized Portal</div>
+        <div class="brand-subtitle">SYSAD Management Platform</div>
+      </div>
+    </div>
+
+    <!-- Active User & Logout Controls (Only shown when authenticated) -->
+    <div class="top-actions" id="header-user-controls" style="display:none;">
+      <div id="user-profile-badge" style="display:flex; align-items:center; gap:0.6rem;"></div>
+      <button class="btn btn-secondary btn-sm" onclick="handleLogout()" title="Log out of Centralized Portal">
+        Sign Out
+      </button>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- MAIN WORK AREA                                           -->
+  <!-- ======================================================== -->
+  <main>
+
+    <!-- ====================================================== -->
+    <!-- 1. MANDATORY LOGIN GATEWAY SCREEN                      -->
+    <!-- ====================================================== -->
+    <div id="view-login" class="login-screen-wrapper">
+      <div class="login-grid">
+        
+        <!-- Standard Login Form -->
+        <div class="login-form-card" id="card-login-view">
+          <h2 style="margin-bottom: 1.25rem;">Sign In to Portal</h2>
+
+          <form id="login-form" onsubmit="handleManualLogin(event)">
+            <div class="form-group">
+              <label for="login-username">Username</label>
+              <input type="text" id="login-username" required placeholder="e.g. alex.student" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" required placeholder="Enter your password" autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem; padding:0.75rem;">
+              Log in
+            </button>
+          </form>
+
+          <div style="text-align:center; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border-color); font-size:0.85rem; color:var(--text-muted);">
+            New student? <a href="javascript:void(0)" onclick="toggleLoginRegister('register')" style="color:var(--accent-cyan); font-weight:600; text-decoration:none;">Register Student Account</a>
+          </div>
+        </div>
+
+        <!-- Student Self-Registration Form -->
+        <div class="login-form-card" id="card-register-view" style="display:none;">
+          <h2 style="margin-bottom: 0.35rem;">Student Registration</h2>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.25rem;">
+            Create your academic portal credentials. Role is automatically set to <strong>Student</strong>.
+          </p>
+
+          <form id="student-register-form" onsubmit="handleStudentRegistration(event)">
+            <div class="form-group">
+              <label for="reg-fullname">Full Name</label>
+              <input type="text" id="reg-fullname" required placeholder="e.g. Jordan Smith">
+            </div>
+
+            <div class="form-group">
+              <label for="reg-username">Student Username</label>
+              <input type="text" id="reg-username" required placeholder="e.g. jordan.student" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+              <label for="reg-department">Academic Department</label>
+              <select id="reg-department" style="width:100%; padding:0.65rem; background:var(--bg-input); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main);">
+                <option value="Information Technology">Information Technology</option>
+                <option value="Computer Science">Computer Science</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-password">Password (min 6 characters)</label>
+              <input type="password" id="reg-password" required placeholder="Create a password" minlength="6" autocomplete="new-password">
+            </div>
+
+            <div class="form-group">
+              <label for="reg-password-confirm">Confirm Password</label>
+              <input type="password" id="reg-password-confirm" required placeholder="Re-enter your password" minlength="6" autocomplete="new-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem; padding:0.75rem;">
+              Complete Registration
+            </button>
+          </form>
+
+          <div style="text-align:center; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border-color); font-size:0.85rem; color:var(--text-muted);">
+            Already have an account? <a href="javascript:void(0)" onclick="toggleLoginRegister('login')" style="color:var(--accent-cyan); font-weight:600; text-decoration:none;">Sign In</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- 2. STUDENT DASHBOARD                                   -->
+    <!-- ====================================================== -->
+    <div id="dashboard-student" style="display:none;">
+      
+      <!-- Student Hero Banner -->
+      <div class="role-hero-banner">
+        <div>
+          <div class="role-hero-title">
+            <span>Student Academic IT Portal</span>
+          </div>
+          <div class="role-hero-subtitle" id="student-welcome-msg">
+            Welcome back! Submit technical issues, track tickets in real-time, and manage account security.
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid (Three Container Cards) -->
+      <div class="grid-3" style="margin-bottom:1.25rem;">
+        <div class="stat-box">
+          <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">My Submitted Tickets</span>
+          <div class="stat-box-num" id="student-ticket-count" style="color:var(--accent-cyan);">0</div>
+          <span style="font-size:0.72rem; color:var(--text-muted);">Troubleshooting Ledger</span>
+        </div>
+        <div class="stat-box">
+          <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Campus Wi-Fi & LMS Status</span>
+          <div class="stat-box-num" style="color:var(--accent-green);">100% ONLINE</div>
+        </div>
+        <div class="stat-box">
+          <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Account Lifecycle Status</span>
+          <div class="stat-box-num" id="student-lifecycle-status" style="color:var(--accent-green);">ACTIVE</div>
+        </div>
+      </div>
+
+      <!-- Security Violation Warning Notice Banner (Positioned below the three container cards) -->
+      <div id="student-violation-banner" style="display:none; margin-bottom:1.5rem; background:rgba(244, 63, 94, 0.12); border:1px solid var(--accent-rose); border-left:4px solid var(--accent-rose); padding:0.85rem 1.25rem; border-radius:var(--radius-sm);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <strong style="color:var(--accent-rose); font-size:0.9rem;">Security Policy Violation Notice</strong>
+            <span class="badge badge-critical" id="student-violation-count" onclick="openStudentIncidentsModal()" style="cursor:pointer;" title="Click to view full incident ledger">1 Incident Logged</span>
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="openStudentIncidentsModal()" style="font-size:0.85rem; padding:0.45rem 1rem; font-weight:600; border-color:var(--accent-rose); color:#fca5a5;">
+            View Incident Ledger
+          </button>
+        </div>
+        <div style="font-size:0.82rem; color:var(--text-main); margin-top:0.4rem;" id="student-violation-details">
+          An attempt to access a prohibited website was blocked by the campus firewall. All violations are logged and monitored by IT Staff & Administrators.
+        </div>
+      </div>
+
+      <div class="grid-2">
+        
+        <!-- Report User-Driven Problems Form -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Report User-Driven Problem</span>
+            </div>
+          </div>
+
+          <form id="student-report-form" onsubmit="handleProblemReport(event, 'student')">
+            <div class="form-group">
+              <label for="student-prob-title">Incident / Problem Title</label>
+              <input type="text" id="student-prob-title" required placeholder="e.g. Wi-Fi disconnects in Science Hall 204">
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="student-prob-category">Category</label>
+                <select id="student-prob-category">
+                  <option value="Network">Campus Wi-Fi / Network</option>
+                  <option value="Software">Canvas LMS / Software</option>
+                  <option value="Hardware">Computer Lab Workstation</option>
+                  <option value="Account">Student Email & Account</option>
+                  <option value="Facility">Dormitory Tech Equipment</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="student-prob-urgency">Urgency</label>
+                <select id="student-prob-urgency">
+                  <option value="Medium">Medium - Regular Issue</option>
+                  <option value="Low">Low - Minor Problem</option>
+                  <option value="High">High - Impeding Homework / Class</option>
+                  <option value="Critical">Critical - Exam Blocked</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="student-prob-desc">Problem Details</label>
+              <textarea id="student-prob-desc" rows="3" required placeholder="Provide room number, error codes, or details..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%;">
+              Submit to Troubleshooting Ledger
+            </button>
+          </form>
+        </div>
+
+        <!-- Student Security & RBAC Enforcement -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Password and Security</span>
+            </div>
+          </div>
+
+          <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:0.75rem;">
+            <div style="background:#0a0f1d; padding:1.25rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+              <div style="color:var(--text-main); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem;">Update Password</div>
+              <form onsubmit="handlePasswordUpdate(event, 'student')" style="display:flex; flex-direction:column; gap:0.75rem;">
+                <input type="password" id="student-pw-old" placeholder="Current Password" required style="padding:0.65rem 0.85rem; font-size:0.9rem;">
+                <input type="password" id="student-pw-new" placeholder="New Password (min 6 characters)" required style="padding:0.65rem 0.85rem; font-size:0.9rem;">
+                <button type="submit" class="btn btn-secondary" style="padding:0.65rem; font-size:0.9rem; font-weight:500;">Update Password Hash</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Student Workstation Telemetry Agent Status -->
+      <div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--accent-purple);">
+        <div class="card-header">
+          <div class="card-title">
+            <span>My Student PC Hardware Telemetry Agent</span>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <span class="badge" id="student-agent-status-badge">Checking Agent...</span>
+            <button class="btn btn-secondary btn-sm" onclick="loadStudentWorkstations()">Refresh Metrics</button>
+          </div>
+        </div>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">
+          Browsers cannot directly access your host CPU/RAM due to security sandboxing. Run the background agent on your PC (<code>cd student_agent && node agent.js</code> or double-click <code>run_agent.bat</code>) to stream live hardware telemetry to the IT Administration portal.
+        </p>
+        <div id="student-agent-metrics-view" style="display:none; background:#0a0f1d; padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-top:0.5rem;">
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+            <div>
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Connected PC Hostname</div>
+              <div id="student-agent-hostname" style="font-size:1.1rem; font-weight:700; color:var(--accent-cyan); font-family:monospace; margin-top:2px;">--</div>
+            </div>
+            <div>
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Host CPU Load</div>
+              <div id="student-agent-cpu" style="font-size:1.1rem; font-weight:700; color:var(--text-main); margin-top:2px;">--%</div>
+              <div class="progress-bar-bg" style="margin-top:4px;"><div class="progress-bar-fill" id="student-agent-cpu-bar" style="width:0%; background:var(--accent-cyan);"></div></div>
+            </div>
+            <div>
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">RAM Consumption</div>
+              <div id="student-agent-ram" style="font-size:1.1rem; font-weight:700; color:var(--text-main); margin-top:2px;">--%</div>
+              <div class="progress-bar-bg" style="margin-top:4px;"><div class="progress-bar-fill" id="student-agent-ram-bar" style="width:0%; background:var(--accent-purple);"></div></div>
+            </div>
+            <div>
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Storage Volume</div>
+              <div id="student-agent-disk" style="font-size:1.1rem; font-weight:700; color:var(--text-main); margin-top:2px;">--%</div>
+              <div class="progress-bar-bg" style="margin-top:4px;"><div class="progress-bar-fill" id="student-agent-disk-bar" style="width:0%; background:var(--accent-amber);"></div></div>
+            </div>
+          </div>
+        </div>
+        <div id="student-agent-offline-view" style="background:#0a0f1d; padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--border-color); font-size:0.85rem; color:var(--text-muted);">
+          <span>Agent is currently waiting for heartbeats. To start transmitting, run <code>node agent.js</code> in the <code>student_agent/</code> folder.</span>
+        </div>
+      </div>
+
+      <!-- Live Ticket Status Updates Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>Ticket Status Updates (My Submitted Issues)</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="loadStudentData()">Refresh Tickets</button>
+        </div>
+
+        <div class="table-responsive">
+          <table id="student-tickets-table">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Subject</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assigned IT Staff</th>
+                <th>Resolution Notes</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- 3. IT STAFF DASHBOARD                                  -->
+    <!-- ====================================================== -->
+    <div id="dashboard-itstaff" style="display:none;">
+      
+      <!-- IT Staff Hero Banner -->
+      <div class="role-hero-banner">
+        <div>
+          <div class="role-hero-title">
+            <span>IT Operations & Support Desk Command Center</span>
+          </div>
+          <div class="role-hero-subtitle" id="itstaff-welcome-msg">
+            Manage Troubleshooting Ledger, Triage Incident Queue, Provision Accounts, and Monitor System Telemetry.
+          </div>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-primary btn-sm" onclick="openProvisionModal()">+ Provision User</button>
+          <button class="btn btn-secondary btn-sm" onclick="loadITStaffData()">Refresh All</button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="grid-4" style="margin-bottom:1.5rem;">
+        <div class="stat-box">
+          <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Prioritized Queue</span>
+          <div class="stat-box-num" id="it-stat-queue-count" style="color:var(--accent-rose);">0</div>
+          <span style="font-size:0.72rem; color:var(--text-muted);">Critical & High Pending</span>
+        </div>
+        <div class="stat-box">
+          <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Managed Accounts</span>
+          <div class="stat-box-num" id="it-stat-users-count" style="color:var(--accent-cyan);">0</div>
+          <span style="font-size:0.72rem; color:var(--text-muted);">Active & Aging Users</span>
+        </div>
+        <div class="stat-box">
+          <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Server CPU Load</span>
+          <div class="stat-box-num" id="it-stat-cpu">--%</div>
+          <span style="font-size:0.72rem; color:var(--text-muted);">Server Telemetry</span>
+        </div>
+        <div class="stat-box">
+          <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Storage Health</span>
+          <div class="stat-box-num" id="it-stat-disk">--%</div>
+          <span style="font-size:0.72rem; color:var(--text-muted);">Primary Volume</span>
+        </div>
+      </div>
+
+      <!-- IT Staff Sub-Navigation Tabs -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" id="it-tab-ledger" onclick="switchITView('ledger')">
+          Incident Triage & Resolution
+        </button>
+        <button class="tab-btn" id="it-tab-directory" onclick="switchITView('directory')">
+          Automated Account Management
+        </button>
+        <button class="tab-btn" id="it-tab-telemetry" onclick="switchITView('telemetry')">
+          Reliability & Threat Prevention
+        </button>
+        <button class="tab-btn" id="it-tab-operations" onclick="switchITView('operations')">
+          Firewall & Server Operations
+        </button>
+      </div>
+
+      <!-- IT View 1: Prioritized Ticket Queue -->
+      <div id="it-view-ledger">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Troubleshooting Ledger - Prioritized Queue (Critical &gt; High &gt; Medium &gt; Low)</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="loadTickets()">Refresh Queue</button>
+          </div>
+
+          <div class="table-responsive">
+            <table id="itstaff-tickets-table">
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>Ticket Code</th>
+                  <th>Subject & Description</th>
+                  <th>Category</th>
+                  <th>Submitted By</th>
+                  <th>Status</th>
+                  <th>Assigned Tech</th>
+                  <th>Resolution / Triage Notes</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- IT View 2: Identity Directory Manager -->
+      <div id="it-view-directory" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Automated Account Management & Directory</span>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem; row-gap:0.6rem; align-items:center;">
+              <button class="btn btn-primary btn-sm" onclick="openProvisionModal()">+ Provision Account</button>
+              <button class="btn btn-secondary btn-sm" onclick="triggerBatchOnboard()">Batch Onboard Cohort</button>
+              <button class="btn btn-secondary btn-sm" onclick="triggerAutoCleanup()">Auto-Cleanup Inactive</button>
+            </div>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; align-items:center;">
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <span style="font-size:0.8rem; color:var(--text-muted);">Lifecycle Status:</span>
+              <select id="it-user-filter-status" onchange="loadUsers()" style="width:140px;">
+                <option value="All">All Statuses</option>
+                <option value="Pending Approval">Pending Approval</option>
+                <option value="Active">Active</option>
+                <option value="Aging">Aging</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <span style="font-size:0.8rem; color:var(--text-muted);">Role:</span>
+              <select id="it-user-filter-role" onchange="loadUsers()" style="width:130px;">
+                <option value="All">All Roles</option>
+                <option value="Student">Student</option>
+                <option value="IT Staff">IT Staff</option>
+              </select>
+            </div>
+
+            <div style="flex:1; min-width:200px;">
+              <input type="text" id="it-user-filter-search" oninput="loadUsers()" placeholder="Search username, full name, or email...">
+            </div>
+          </div>
+
+          <div class="pending-approvals-alert" id="it-pending-approvals-bar" style="display:none; background:rgba(245, 158, 11, 0.12); border-left:4px solid #f59e0b; padding:0.65rem 0.9rem; border-radius:var(--radius-sm); margin-bottom:1rem; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span style="font-size:1.05rem;">⚠️</span>
+              <div>
+                <strong style="color:#fbbf24; font-size:0.85rem;">Student Registrations Awaiting Confirmation:</strong>
+                <span class="pending-count-text" style="color:var(--text-main); font-size:0.82rem; margin-left:0.35rem;">--</span>
+              </div>
+            </div>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Use the <strong>✓ Approve</strong> or <strong>✕ Reject</strong> buttons below</span>
+          </div>
+
+          <div class="table-responsive">
+            <table id="itstaff-users-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User / Username</th>
+                  <th>Role</th>
+                  <th>Department</th>
+                  <th>Lifecycle Status</th>
+                  <th>Last Activity</th>
+                  <th>Update Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- IT View 3: 4.0 Telemetry & Aging Alerts -->
+      <div id="it-view-telemetry" style="display:none;">
+        <div class="grid-2">
+          
+          <!-- Hardware Telemetry Dials -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>Live Hardware Telemetry</span>
+              </div>
+              <span class="badge badge-active">Polling 4s</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.25rem;">
+                  <span>CPU Usage</span>
+                  <span id="it-live-cpu-val" style="font-weight:700;">--%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="it-live-cpu-bar" style="width:0%; background:var(--accent-cyan);"></div></div>
+              </div>
+
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.25rem;">
+                  <span>Memory (RAM)</span>
+                  <span id="it-live-ram-val" style="font-weight:700;">--%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="it-live-ram-bar" style="width:0%; background:var(--accent-purple);"></div></div>
+              </div>
+
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.25rem;">
+                  <span>Storage Volume</span>
+                  <span id="it-live-disk-val" style="font-weight:700;">--%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="it-live-disk-bar" style="width:0%; background:var(--accent-amber);"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aging Account & Incident Alerts -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>Proactive Threat Prevention: Inactive Profiles & Credential Rotation</span>
+              </div>
+              <div style="display:flex; gap:0.4rem;">
+                <button class="btn btn-warning btn-sm" onclick="runAgingScan()">Scan Aging Accounts</button>
+                <button class="btn btn-danger btn-sm" onclick="triggerEnforceRotation()">Enforce Password Rotation</button>
+              </div>
+            </div>
+            <div id="it-alerts-container"></div>
+          </div>
+
+        </div>
+
+        <!-- Connected Student Workstations (Client-Side Telemetry Agent) -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Connected Student Workstations (Client-Side Telemetry Agent)</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <span class="badge badge-active" id="agent-fleet-count">Fleet Active</span>
+              <button class="btn btn-secondary btn-sm" onclick="loadStudentWorkstations()">Refresh Fleet</button>
+            </div>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">
+            Real-time host hardware metrics reported directly by the background Client-Side Agent (Node.js <code>systeminformation</code> / Python) running on student computers:
+          </p>
+          <div class="table-responsive">
+            <table id="it-workstations-table">
+              <thead>
+                <tr>
+                  <th>Machine Hostname</th>
+                  <th>Student User</th>
+                  <th>OS Platform</th>
+                  <th>CPU Load</th>
+                  <th>RAM Consumption</th>
+                  <th>Storage Volume</th>
+                  <th>Agent Status</th>
+                  <th>Last Heartbeat</th>
+                </tr>
+              </thead>
+              <tbody id="it-workstations-body"></tbody>
+            </table>
+          </div>
+          <div id="it-workstations-pagination" style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; padding-top:0.6rem; border-top:1px solid rgba(255,255,255,0.08); font-size:0.78rem; color:var(--text-muted);"></div>
+        </div>
+      </div>
+
+      <!-- IT View 4: 6.0 Network & Server Operations -->
+      <div id="it-view-operations" style="display:none;">
+        <div class="grid-2">
+          
+          <!-- Campus Firewall Rule Management -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>Campus Firewall Management</span>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="loadFirewallRules()">Refresh Rules</button>
+            </div>
+            <div class="table-responsive">
+              <table id="it-firewall-table">
+                <thead>
+                  <tr>
+                    <th>Rule Identifier</th>
+                    <th>Subnet / Port</th>
+                    <th>Action</th>
+                    <th>State</th>
+                    <th>Toggle</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Server Configuration & Tuning -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>Server Configuration & Policy Parameters</span>
+              </div>
+              <div style="display:flex; gap:0.4rem;">
+                <button class="btn btn-primary btn-sm" onclick="saveAllServerConfigs()">Save Config</button>
+                <button class="btn btn-secondary btn-sm" onclick="loadServerConfig()">Refresh Config</button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table id="it-config-table">
+                <thead>
+                  <tr>
+                    <th>Parameter Key</th>
+                    <th>Current Value</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- 5. ADMINISTRATOR DASHBOARD                             -->
+    <!-- ====================================================== -->
+    <div id="dashboard-admin" style="display:none;">
+      
+      <!-- Admin Hero Banner -->
+      <div class="role-hero-banner">
+        <div>
+          <div class="role-hero-title">
+            <span>Executive Administrator Infrastructure Console</span>
+          </div>
+          <div class="role-hero-subtitle" id="admin-welcome-msg">
+            Global governance over RBAC Policies, Identity Lifecycle, Server Monitoring, Snapshots, and Audit Trails.
+          </div>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-primary btn-sm" onclick="triggerBackup()">Run Snapshot Backup</button>
+          <button class="btn btn-secondary btn-sm" onclick="openPatchModal()">Deploy Patch</button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs for Administrator -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" id="admin-tab-rbac" onclick="switchAdminView('rbac')">
+          Roles and Permissions
+        </button>
+        <button class="tab-btn" id="admin-tab-monitoring" onclick="switchAdminView('monitoring')">
+          Reliability & Recovery
+        </button>
+        <button class="tab-btn" id="admin-tab-directory" onclick="switchAdminView('directory')">
+          Automated Account Governance
+        </button>
+        <button class="tab-btn" id="admin-tab-ledger" onclick="switchAdminView('ledger')">
+          Troubleshooting & Permission Audit
+        </button>
+        <button class="tab-btn" id="admin-tab-operations" onclick="switchAdminView('operations')">
+          Firewall & Server Config
+        </button>
+        <button class="tab-btn" id="admin-tab-audit" onclick="switchAdminView('audit')">
+          Audit & Ticket Logs DB
+        </button>
+      </div>
+
+      <!-- Admin View 1: Roles and Permissions -->
+      <div id="admin-view-rbac">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Roles and Permissions</span>
+            </div>
+          </div>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+            Enforce role policies across the Centralized Portal. Checked permissions are granted instantly.
+          </p>
+
+          <div class="table-responsive">
+            <table id="admin-rbac-table">
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>Submit Tickets</th>
+                  <th>View Own Tickets</th>
+                  <th>Manage Users</th>
+                  <th>Triage Tickets</th>
+                  <th>View Telemetry</th>
+                  <th>Manage Backups</th>
+                  <th>Manage Patches</th>
+                  <th>View Audit Logs</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin View 2: 4.0 Security & Performance Monitoring -->
+      <div id="admin-view-monitoring" style="display:none;">
+        <div class="grid-4" style="margin-bottom:1.5rem;">
+          <div class="telemetry-card">
+            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">CPU Load</div>
+            <div class="telemetry-metric" id="admin-tel-cpu">--%</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="admin-tel-cpu-bar" style="width:0%; background:var(--accent-cyan);"></div></div>
+          </div>
+          <div class="telemetry-card">
+            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">RAM Consumption</div>
+            <div class="telemetry-metric" id="admin-tel-ram">--%</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="admin-tel-ram-bar" style="width:0%; background:var(--accent-purple);"></div></div>
+          </div>
+          <div class="telemetry-card">
+            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Storage Volume</div>
+            <div class="telemetry-metric" id="admin-tel-disk">--%</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="admin-tel-disk-bar" style="width:0%; background:var(--accent-amber);"></div></div>
+          </div>
+          <div class="telemetry-card" onclick="openActiveSessionsModal()" style="cursor:pointer;" title="Click to view all active user sessions & access tokens">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Active Sessions</div>
+              <span style="font-size:0.7rem; color:var(--accent-cyan); text-decoration:underline;">Inspect ↗</span>
+            </div>
+            <div class="telemetry-metric" id="admin-tel-conns" style="color:var(--accent-green);">--</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);" id="admin-tel-status">Status: Optimal</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Alerts Feed -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>Alerts: Inactive Accounts & Telemetry</span>
+              </div>
+              <button class="btn btn-warning btn-sm" onclick="runAgingScan()">Scan for Aging Accounts</button>
+            </div>
+            <div id="admin-alerts-container"></div>
+          </div>
+
+          <!-- Patch Deployments & Backup Schedules -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>High Reliability: Backup Snapshots & Rapid Recovery</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:0.5rem; row-gap:0.6rem; align-items:center; justify-content:flex-end;">
+                <button class="btn btn-primary btn-sm" onclick="triggerBackup()" style="white-space:nowrap;">Backup Snapshot</button>
+                <button class="btn btn-warning btn-sm" onclick="triggerRapidRecovery()" style="white-space:nowrap;">Rapid Recovery</button>
+                <button class="btn btn-secondary btn-sm" onclick="openPatchModal()" style="white-space:nowrap;">Deploy Patch</button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table id="admin-maintenance-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Task / Title</th>
+                    <th>Status</th>
+                    <th>Operator</th>
+                    <th>Executed At</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connected Student Workstations (Client-Side Telemetry Agent) -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Connected Student Workstations (Client-Side Telemetry Agent)</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <span class="badge badge-active" id="admin-fleet-count">Fleet Active</span>
+              <button class="btn btn-secondary btn-sm" onclick="loadStudentWorkstations()">Refresh Fleet</button>
+            </div>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">
+            Real-time host hardware metrics reported directly by the background Client-Side Agent (Node.js <code>systeminformation</code> / Python) running on student computers:
+          </p>
+          <div class="table-responsive">
+            <table id="admin-workstations-table">
+              <thead>
+                <tr>
+                  <th>Machine Hostname</th>
+                  <th>Student User</th>
+                  <th>OS Platform</th>
+                  <th>CPU Load</th>
+                  <th>RAM Consumption</th>
+                  <th>Storage Volume</th>
+                  <th>Agent Status</th>
+                  <th>Last Heartbeat</th>
+                </tr>
+              </thead>
+              <tbody id="admin-workstations-body"></tbody>
+            </table>
+          </div>
+          <div id="admin-workstations-pagination" style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; padding-top:0.6rem; border-top:1px solid rgba(255,255,255,0.08); font-size:0.78rem; color:var(--text-muted);"></div>
+        </div>
+      </div>
+
+      <!-- Admin View 3: Identity Directory Governance -->
+      <div id="admin-view-directory" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Automated Account Governance & Directory</span>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem; row-gap:0.6rem; align-items:center;">
+              <button class="btn btn-primary btn-sm" onclick="openProvisionModal()">+ Provision Account</button>
+              <button class="btn btn-secondary btn-sm" onclick="triggerBatchOnboard()">Batch Onboard Cohort</button>
+              <button class="btn btn-secondary btn-sm" onclick="triggerAutoCleanup()">Auto-Cleanup Inactive</button>
+            </div>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; align-items:center;">
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <span style="font-size:0.8rem; color:var(--text-muted);">Status Filter:</span>
+              <select id="admin-user-filter-status" onchange="loadUsers()" style="width:140px;">
+                <option value="All">All Statuses</option>
+                <option value="Pending Approval">Pending Approval</option>
+                <option value="Active">Active</option>
+                <option value="Aging">Aging</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <span style="font-size:0.8rem; color:var(--text-muted);">Role Filter:</span>
+              <select id="admin-user-filter-role" onchange="loadUsers()" style="width:140px;">
+                <option value="All">All Roles</option>
+                <option value="Student">Student</option>
+                <option value="IT Staff">IT Staff</option>
+                <option value="Administrator">Administrator</option>
+              </select>
+            </div>
+
+            <div style="flex:1; min-width:180px;">
+              <input type="text" id="admin-user-filter-search" oninput="loadUsers()" placeholder="Search username, name, or email...">
+            </div>
+          </div>
+
+          <div class="pending-approvals-alert" id="admin-pending-approvals-bar" style="display:none; background:rgba(245, 158, 11, 0.12); border-left:4px solid #f59e0b; padding:0.65rem 0.9rem; border-radius:var(--radius-sm); margin-bottom:1rem; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span style="font-size:1.05rem;">⚠️</span>
+              <div>
+                <strong style="color:#fbbf24; font-size:0.85rem;">Student Registrations Awaiting Confirmation:</strong>
+                <span class="pending-count-text" style="color:var(--text-main); font-size:0.82rem; margin-left:0.35rem;">--</span>
+              </div>
+            </div>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Use the <strong>✓ Approve</strong> or <strong>✕ Reject</strong> buttons below</span>
+          </div>
+
+          <div class="table-responsive">
+            <table id="admin-users-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User / Username</th>
+                  <th>Role</th>
+                  <th>Department</th>
+                  <th>Lifecycle Status</th>
+                  <th>Last Activity</th>
+                  <th>Actions (Update / Delete)</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin View 4: Troubleshooting Ledger & Permission Audits -->
+      <div id="admin-view-ledger" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Global Troubleshooting Ledger & Incident Prioritization</span>
+            </div>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn btn-secondary btn-sm" onclick="loadTickets()">Refresh Queue</button>
+              <button class="btn btn-secondary btn-sm" onclick="togglePermissionAuditCard()">Review Permission Changes Audit</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table id="admin-tickets-table">
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>Ticket Code</th>
+                  <th>Title & Description</th>
+                  <th>Category</th>
+                  <th>Reported By</th>
+                  <th>Status</th>
+                  <th>Assigned Tech</th>
+                  <th>Resolution Notes</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Permission Change Audits to Accelerate Troubleshooting (Outcome 4) -->
+        <div class="card" id="permission-change-audit-card" style="display:none; border-color:var(--accent-purple);">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Audited Trail of Permission & Policy Changes (Accelerate Outage Triage)</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="togglePermissionAuditCard()">✕ Close</button>
+          </div>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">
+            Review recent RBAC, firewall, and access modifications that may have caused service denial or access disruptions.
+          </p>
+          <div class="table-responsive">
+            <table id="permission-audit-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Event Type</th>
+                  <th>Actor</th>
+                  <th>Role</th>
+                  <th>Permission / Policy Delta</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin View 5: 6.0 Network & Server Operations (Outcome 6: Optimized IT Operations) -->
+      <div id="admin-view-operations" style="display:none;">
+        <div class="grid-2">
+          
+          <!-- Campus Firewall Rule Management -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>Campus Firewall Management</span>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="loadFirewallRules()">Refresh Rules</button>
+            </div>
+            <div class="table-responsive">
+              <table id="admin-firewall-table">
+                <thead>
+                  <tr>
+                    <th>Rule Identifier</th>
+                    <th>Subnet / Port</th>
+                    <th>Action</th>
+                    <th>State</th>
+                    <th>Toggle</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Server Configuration & Tuning -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>Server Configuration & Policy Parameters</span>
+              </div>
+              <div style="display:flex; gap:0.4rem;">
+                <button class="btn btn-primary btn-sm" onclick="saveAllServerConfigs()">Save Config</button>
+                <button class="btn btn-secondary btn-sm" onclick="loadServerConfig()">Refresh Config</button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table id="admin-config-table">
+                <thead>
+                  <tr>
+                    <th>Parameter Key</th>
+                    <th>Current Value</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Campus Web Filter: Prohibited URLs & Domain Governance -->
+        <div class="card" style="margin-top: 1.5rem; border-left: 4px solid var(--accent-rose);">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Campus Web Filter: Prohibited URLs & Domain Policy Manager</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <button class="btn btn-primary btn-sm" onclick="openAddForbiddenUrlModal()">+ Add Prohibited URL / Pattern</button>
+              <button class="btn btn-secondary btn-sm" onclick="loadForbiddenUrls()">Refresh Filter Rules</button>
+            </div>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">
+            Configure websites and domain keywords blocked across all student web browsers (Edge, Chrome) under Firewall Rule FW-RULE-06. Active rules drop outbound packets and alert IT Operations; suspended rules permit student traffic.
+          </p>
+          <div class="table-responsive">
+            <table id="admin-forbidden-urls-table">
+              <thead>
+                <tr>
+                  <th>Domain / URL Pattern</th>
+                  <th>Category</th>
+                  <th>Justification / Reason</th>
+                  <th>Policy State</th>
+                  <th>Added By</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-forbidden-urls-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin View 5: Audit & Ticket Logs DB -->
+      <div id="admin-view-audit" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Audit & Ticket Logs DB - Immutable Forensic Log</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="loadAuditLogs()">Refresh Trail</button>
+          </div>
+
+          <div class="table-responsive">
+            <table id="admin-audit-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Event Type</th>
+                  <th>Actor</th>
+                  <th>Role</th>
+                  <th>Details & Change Log</th>
+                  <th>IP Address</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODALS                                                   -->
+  <!-- ======================================================== -->
+
+  <!-- Modal: Provision New Account -->
+  <div id="modal-provision" class="modal-overlay">
+    <div class="modal-box">
+      <div class="card-header" style="margin-bottom:1rem;">
+        <div class="card-title">Account Provisioning</div>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-provision')">✕</button>
+      </div>
+
+      <form id="provision-form" onsubmit="handleAccountProvision(event)">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="prov-username" required placeholder="e.g. j.doe">
+          </div>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="prov-fullname" required placeholder="e.g. John Doe">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="prov-email" required placeholder="j.doe@campus.edu">
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select id="prov-dept">
+              <option value="Information Technology">Information Technology</option>
+              <option value="Computer Science">Computer Science</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Assign Role</label>
+            <select id="prov-role">
+              <option value="Student">Student</option>
+              <option value="IT Staff">IT Staff</option>
+              <option value="Administrator">Administrator</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Initial Temporary Password</label>
+            <input type="password" id="prov-password" value="Welcome2026!" required>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-provision')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Provision Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Ticket Triage & Resolution -->
+  <div id="modal-triage" class="modal-overlay">
+    <div class="modal-box">
+      <div class="card-header" style="margin-bottom:1rem;">
+        <div class="card-title">Ticket Triage & Resolution</div>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-triage')">✕</button>
+      </div>
+
+      <form id="triage-form" onsubmit="handleTicketTriageSubmit(event)">
+        <input type="hidden" id="triage-ticket-id">
+
+        <div style="background:#0a0f1d; padding:0.75rem; border-radius:var(--radius-sm); margin-bottom:1rem; border:1px solid var(--border-color);">
+          <div id="triage-ticket-code" style="font-weight:700; color:var(--accent-cyan);"></div>
+          <div id="triage-ticket-title" style="font-size:0.9rem; font-weight:600; margin-top:2px;"></div>
+          <div id="triage-ticket-desc" style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;"></div>
+        </div>
+
+        <div id="triage-locked-banner" style="display:none; background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.3); padding:0.65rem 0.85rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.82rem; color:var(--accent-green);">
+          <strong>Ticket Resolved:</strong> This ticket has already been resolved and can no longer be edited.
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Status</label>
+            <select id="triage-status">
+              <option value="Open">Open</option>
+              <option value="In Triage">In Triage</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Priority Escalation</label>
+            <select id="triage-priority">
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Assigned IT Staff Technician</label>
+          <input type="text" id="triage-assignee" placeholder="e.g. marcus.it">
+        </div>
+
+        <div class="form-group">
+          <label>Diagnostic & Resolution Notes</label>
+          <textarea id="triage-notes" rows="3" placeholder="Document diagnostic steps, hardware replacement, or resolution status..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-triage')">Cancel</button>
+          <button type="submit" id="triage-submit-btn" class="btn btn-primary">Save & Log to Audit DB</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Deploy Security Patch -->
+  <div id="modal-patch" class="modal-overlay">
+    <div class="modal-box">
+      <div class="card-header" style="margin-bottom:1rem;">
+        <div class="card-title">Security Patch Deployment</div>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-patch')">✕</button>
+      </div>
+
+      <form id="patch-form" onsubmit="handlePatchSubmit(event)">
+        <div class="form-group">
+          <label>Patch Identifier / Title</label>
+          <input type="text" id="patch-title" required value="SYSAD-PATCH-2026-Q4">
+        </div>
+
+        <div class="form-group">
+          <label>Deployment Details & Scope</label>
+          <textarea id="patch-details" rows="3" required placeholder="Security updates, kernel hardening, vulnerability patches..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-patch')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Deploy Patch</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Security Violation Warning (Web Filter Blocked) -->
+  <div id="modal-security-block" class="modal-overlay">
+    <div class="modal-box" style="border: 2px solid var(--accent-rose); box-shadow: 0 0 30px rgba(244, 63, 94, 0.4); max-width: 540px;">
+      <div class="card-header" style="margin-bottom:1rem; border-bottom: 1px solid rgba(244, 63, 94, 0.3); padding-bottom: 0.75rem;">
+        <div class="card-title" style="color:var(--accent-rose); font-size:1.15rem; font-weight:700;">
+          Access Denied: Forbidden Website Blocked
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-security-block')">✕</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:0.9rem; font-size:0.85rem;">
+        <div style="background:rgba(244, 63, 94, 0.12); border-left:4px solid var(--accent-rose); padding:0.9rem; border-radius:var(--radius-sm);">
+          <strong style="color:var(--accent-rose); font-size:0.95rem; display:block; margin-bottom:0.3rem;">
+            Security Policy Violation (HTTP 403 Forbidden)
+          </strong>
+          <span id="modal-sec-message" style="color:var(--text-main); font-size:0.85rem; line-height:1.4;"></span>
+        </div>
+
+        <div style="background:#0a0f1d; padding:0.9rem; border-radius:var(--radius-sm); border:1px solid var(--border-color); display:flex; flex-direction:column; gap:0.5rem; font-size:0.82rem;">
+          <div><span style="color:var(--text-muted);">Attempted Target:</span> <code id="modal-sec-url" style="color:var(--accent-cyan); font-weight:700; word-break:break-all;"></code></div>
+          <div><span style="color:var(--text-muted);">Violation Category:</span> <strong id="modal-sec-category" style="color:var(--accent-rose);"></strong></div>
+          <div><span style="color:var(--text-muted);">Firewall Enforced Rule:</span> <span id="modal-sec-rule" style="color:var(--text-main); font-family:monospace;">FW-RULE-06 (Deny Outbound Prohibited Protocols)</span></div>
+          <div><span style="color:var(--text-muted);">Governing Policy:</span> <span>Campus Network Acceptable Use Policy § 4.2</span></div>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+            <span style="color:var(--text-muted);">Action Taken:</span> 
+            <span class="badge badge-critical">CONNECTION TERMINATED & PACKET DROPPED</span>
+          </div>
+        </div>
+
+        <div style="background:#060a14; border:1px solid rgba(244, 63, 94, 0.25); border-radius:var(--radius-sm); padding:0.75rem; font-size:0.75rem; color:#fca5a5; line-height:1.4;">
+          <strong>Security Notice:</strong> This unauthorized access attempt has been permanently logged in the central Security Audit Log DB and transmitted in real-time to Campus IT Staff and System Administrators for investigation.
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; margin-top:0.4rem;">
+          <button class="btn btn-primary" onclick="closeModal('modal-security-block')">Acknowledge & Dismiss</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Prohibited URL / Domain -->
+  <div id="modal-add-forbidden-url" class="modal-overlay">
+    <div class="modal-box">
+      <div class="card-header" style="margin-bottom:1rem;">
+        <div class="card-title">Add Prohibited Website / Pattern</div>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-add-forbidden-url')">✕</button>
+      </div>
+
+      <form id="add-forbidden-form" onsubmit="handleAddForbiddenUrlSubmit(event)">
+        <div class="form-group">
+          <label>Website Domain or URL Pattern</label>
+          <input type="text" id="forbid-domain" required placeholder="e.g. tiktok.com, roblox.com, steampowered.com">
+          <span style="font-size:0.72rem; color:var(--text-muted); margin-top:2px; display:block;">
+            Matches any URL containing this string in student browsers (Edge, Chrome).
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Violation Category</label>
+          <select id="forbid-category">
+            <option value="Social Media / Distraction">Social Media / Distraction</option>
+            <option value="Online Gaming">Online Gaming</option>
+            <option value="Video Streaming / High Bandwidth">Video Streaming / High Bandwidth</option>
+            <option value="P2P / Unauthorized File Sharing">P2P / Unauthorized File Sharing</option>
+            <option value="Network Proxy / VPN Evasion">Network Proxy / VPN Evasion</option>
+            <option value="Gambling / High-Risk Content">Gambling / High-Risk Content</option>
+            <option value="Unauthorized Cryptomining">Unauthorized Cryptomining</option>
+            <option value="Malware & Phishing Threat">Malware & Phishing Threat</option>
+            <option value="Other Restricted Category">Other Restricted Category</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Administrative Justification / Reason</label>
+          <textarea id="forbid-reason" rows="2" required placeholder="Policy justification for blocking access during campus hours..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-forbidden-url')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save to Active Firewall Filter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Student Security Incident Ledger -->
+  <div id="modal-student-incidents" class="modal-overlay">
+    <div class="modal-box" style="max-width: 820px; border-top: 3px solid var(--accent-rose);">
+      <div class="card-header" style="margin-bottom:1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+        <div>
+          <div class="card-title" style="color:var(--accent-rose); font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+            <span>Account Security Policy Violations & Incident Ledger</span>
+          </div>
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;" id="student-incidents-modal-subtitle">
+            All firewall web filter blocks and acceptable-use violations permanently recorded under your identity.
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-student-incidents')">✕</button>
+      </div>
+
+      <div style="margin-bottom: 0.9rem; background: rgba(244, 63, 94, 0.08); border-left: 3px solid var(--accent-rose); padding: 0.65rem 0.9rem; border-radius: var(--radius-sm); font-size: 0.8rem; color: #fca5a5; line-height: 1.4;">
+        <strong>Perimeter Firewall Audit Notice:</strong> Every blocked connection attempt to unauthorized, gambling, P2P, distraction, or malicious domains is permanently archived in the <code>Audit & Ticket Logs DB</code> (D2) and monitored by Campus IT Administrators.
+      </div>
+
+      <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+        <table id="student-incidents-table" style="width: 100%;">
+          <thead>
+            <tr>
+              <th style="width: 50px;"># ID</th>
+              <th style="width: 130px;">Date & Time</th>
+              <th>Blocked Target / Domain</th>
+              <th style="width: 170px;">Violation Category</th>
+              <th style="width: 110px;">Firewall Rule</th>
+              <th style="width: 90px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="student-incidents-tbody">
+            <!-- Populated dynamically via openStudentIncidentsModal() -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border-color);">
+        <span style="font-size:0.75rem; color:var(--text-muted);" id="student-incidents-count-footer">Loading incidents...</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('modal-student-incidents')">Close Ledger</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Sessions & Access Tokens Ledger Modal -->
+  <div id="modal-active-sessions" class="modal-overlay">
+    <div class="modal-box" style="max-width: 900px; border-top: 3px solid var(--accent-cyan);">
+      <div class="card-header" style="margin-bottom:1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+        <div>
+          <div class="card-title" style="color:var(--accent-cyan); font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+            <span>Active User Sessions & Access Tokens Ledger</span>
+          </div>
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">
+            Real-time authenticated sessions stored in <code>user_roles.db</code>. Administrators can terminate orphaned or suspicious sessions instantly.
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-active-sessions')">✕</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+        <div style="font-size:0.8rem; color:var(--text-muted);" id="active-sessions-stat-summary">Loading sessions...</div>
+        <button class="btn btn-secondary btn-sm" onclick="loadActiveSessions()">Refresh Sessions</button>
+      </div>
+
+      <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table id="active-sessions-table" style="width: 100%;">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Session Token</th>
+              <th>Login Time</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="active-sessions-tbody">
+            <!-- Populated dynamically via loadActiveSessions() -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border-color);">
+        <span style="font-size:0.75rem; color:var(--text-muted);">Authentication & Proactive Threat Prevention</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('modal-active-sessions')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

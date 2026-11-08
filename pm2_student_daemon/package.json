@@ -1,0 +1,16 @@
+{
+  "name": "student-telemetry-agent",
+  "version": "1.0.0",
+  "description": "Silent background telemetry agent daemon for student workstations",
+  "main": "agent.js",
+  "scripts": {
+    "start": "node agent.js",
+    "daemon": "pm2 start ecosystem.config.js"
+  },
+  "dependencies": {
+    "systeminformation": "^5.25.11"
+  },
+  "author": "SYSAD IT Administration",
+  "license": "ISC"
+}
+

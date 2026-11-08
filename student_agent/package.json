@@ -1,0 +1,17 @@
+{
+  "name": "student-pc-telemetry-agent",
+  "version": "1.0.0",
+  "description": "Client-Side Hardware Telemetry Agent for Student PCs",
+  "main": "agent.js",
+  "scripts": {
+    "start": "node agent.js",
+    "test-metrics": "node -e \"require('./agent.js').collectMetrics().then(console.log)\""
+  },
+  "dependencies": {
+    "systeminformation": "^5.21.22"
+  },
+  "keywords": ["telemetry", "systeminformation", "sysad", "hardware-monitoring"],
+  "author": "SYSAD Team",
+  "license": "MIT"
+}
+
